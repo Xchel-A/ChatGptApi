@@ -1,7 +1,7 @@
 const express = require('express');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-const { v4: uuidv4 } = require('uuid');
+
 
 puppeteer.use(StealthPlugin());
 
@@ -132,7 +132,7 @@ setInterval(() => {
 
 // Inicializar Puppeteer y luego iniciar el servidor Express
 (async () => {
-  app.listen(3000, () => {
-    console.log('Servidor corriendo en http://localhost:3000');
+  app.listen(3001, () => {
+    console.log('Servidor corriendo en http://localhost:3001');
   });
 })();
