@@ -16,7 +16,10 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Inicializar Puppeteer y abrir la página de ChatGPT
 async function initPuppeteer(token) {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ 
+    headless: false,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
   const page = await browser.newPage();
   await page.goto('https://chat.openai.com/', { waitUntil: 'networkidle2' });
 
@@ -139,8 +142,6 @@ const credentials = { key: privateKey, cert: certificate };
 
 // Inicializar Puppeteer y luego iniciar el servidor Express
 (async () => {
-  
-
   const httpsServer = https.createServer(credentials, app);
   httpsServer.listen(3001, () => {
     console.log('Servidor HTTPS corriendo en https://localhost:3001');
