@@ -3,6 +3,7 @@ const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const fs = require('fs');
 const https = require('https');
+const { exec } = require('child_process');
 
 puppeteer.use(StealthPlugin());
 
@@ -16,9 +17,17 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Inicializar Puppeteer y abrir la página de ChatGPT
 async function initPuppeteer(token) {
+  exec('Xvfb :99 -screen 0 1280x1024x16 &', (error) => {
+    if (error) {
+      console.error(`Error al iniciar Xvfb: ${error.message}`);
+      return;
+    }
+    console.log('Xvfb iniciado');
+  });
+
   const browser = await puppeteer.launch({ 
     headless: false,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--display=:99']
   });
   const page = await browser.newPage();
   await page.goto('https://chat.openai.com/', { waitUntil: 'networkidle2' });
