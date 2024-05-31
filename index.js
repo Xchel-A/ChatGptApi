@@ -1,7 +1,8 @@
 const express = require('express');
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-
+const fs = require('fs');
+const https = require('https');
 
 puppeteer.use(StealthPlugin());
 
@@ -130,9 +131,20 @@ setInterval(() => {
   }
 }, 60 * 1000); // Verificar cada minuto
 
+// Lee los certificados SSL
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/dendenmushi.space/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/dendenmushi.space/fullchain.pem', 'utf8');
+
+const credentials = { key: privateKey, cert: certificate };
+
 // Inicializar Puppeteer y luego iniciar el servidor Express
 (async () => {
   app.listen(3001, () => {
-    console.log('Servidor corriendo en http://localhost:3001');
+    console.log('Servidor HTTP corriendo en http://localhost:3001');
+  });
+
+  const httpsServer = https.createServer(credentials, app);
+  httpsServer.listen(3001, () => {
+    console.log('Servidor HTTPS corriendo en https://localhost:3001');
   });
 })();
