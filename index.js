@@ -139,9 +139,7 @@ const credentials = { key: privateKey, cert: certificate };
 
 // Inicializar Puppeteer y luego iniciar el servidor Express
 (async () => {
-  app.listen(3001, () => {
-    console.log('Servidor HTTP corriendo en http://localhost:3001');
-  });
+  
 
   const httpsServer = https.createServer(credentials, app);
   httpsServer.listen(3001, () => {
