@@ -58,7 +58,7 @@ async function sendMessageAndGetResponse(token, message) {
   await page.waitForSelector(`[data-message-author-role="user"]:last-child`);
 
   // Pausa adicional para dar tiempo a generar el contenedor del mensaje
-  await wait(5000); // Esperar 5 segundos
+  await wait(7000); // Esperar 5 segundos
 
   // Esperar a que aparezca la nueva respuesta del asistente
   const newResponse = await page.evaluate(async () => {
@@ -70,7 +70,7 @@ async function sendMessageAndGetResponse(token, message) {
     let retries = 0;
     let lastMessageId = '';
 
-    while (!newMessageGenerated && retries < 120) { // Esperar hasta 60 segundos (30 intentos * 2 segundos)
+    while (!newMessageGenerated && retries < 160) { // Esperar hasta 60 segundos (30 intentos * 2 segundos)
       const responseMessages = Array.from(document.querySelectorAll('[data-message-author-role="assistant"]'));
       const lastMessage = responseMessages[responseMessages.length - 1];
 
