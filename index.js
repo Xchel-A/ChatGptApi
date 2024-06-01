@@ -53,13 +53,13 @@ async function sendMessageAndGetResponse(token, message) {
   const { page } = session;
   await page.type('textarea', message);
   await page.keyboard.press('Enter');
-
+  await wait(7000); // Esperar 5 segundos
   // Esperar a que el mensaje del usuario aparezca en la página
   await page.waitForSelector(`[data-message-author-role="user"]:last-child`);
 
   // Pausa adicional para dar tiempo a generar el contenedor del mensaje
-  await wait(7000); // Esperar 5 segundos
 
+  await wait(7000); // Esperar 5 segundos
   // Esperar a que aparezca la nueva respuesta del asistente
   const newResponse = await page.evaluate(async () => {
     const selector = '.markdown.prose.w-full.break-words';
