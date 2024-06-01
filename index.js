@@ -86,7 +86,7 @@ async function sendMessageAndGetResponse(token, message) {
         }
       }
 
-      await sleep(2000);
+      await sleep(20000);
       retries++;
     }
 
