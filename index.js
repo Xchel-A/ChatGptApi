@@ -37,11 +37,12 @@ async function initPuppeteer(token) {
   await page.goto('https://chat.openai.com/', { waitUntil: 'networkidle2' });
 
   // Iniciar sesión si es necesario
-  await wait(10000); // Esperar un tiempo para cargar completamente
-
-  if (await page.$('textarea') === null) {
-    console.log('Inicia sesión manualmente en el navegador.');
-    await page.waitForSelector('textarea', { timeout: 0 }); // Espera hasta que la página esté lista
+  try {
+    await page.waitForSelector('textarea', { timeout: 10000 }); // Espera hasta que la página esté lista
+  } catch (error) {
+    console.error('No se encontró el campo de entrada de texto');
+    await browser.close();
+    throw new Error('Fallo la inicialización: no se encontró el campo de entrada de texto');
   }
 
   sessions[token] = { browser, page, lastActivity: Date.now() };
@@ -113,6 +114,10 @@ app.post('/init', async (req, res) => {
     return res.status(400).json({ error: 'Token no proporcionado' });
   }
 
+  if (sessions[token]) {
+    return res.json({ message: 'Ya tienes una sesión activa', token });
+  }
+
   try {
     await initPuppeteer(token);
     res.json({ message: 'Sesión inicializada', token });
@@ -134,6 +139,32 @@ app.post('/chat', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Endpoint para cerrar un cliente específico por token
+app.post('/close-session', (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ error: 'Token no proporcionado' });
+  }
+
+  const session = sessions[token];
+  if (session) {
+    session.browser.close();
+    delete sessions[token];
+    res.json({ message: `Sesión con token ${token} cerrada` });
+  } else {
+    res.status(404).json({ error: 'Sesión no encontrada' });
+  }
+});
+
+// Endpoint para cerrar todas las sesiones
+app.post('/close-all-sessions', (req, res) => {
+  for (const [token, session] of Object.entries(sessions)) {
+    session.browser.close();
+    delete sessions[token];
+  }
+  res.json({ message: 'Todas las sesiones han sido cerradas' });
 });
 
 // Función para cerrar sesiones inactivas
