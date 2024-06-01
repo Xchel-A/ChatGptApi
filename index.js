@@ -58,13 +58,12 @@ async function sendMessageAndGetResponse(token, message) {
   const { page } = session;
   await page.type('textarea', message);
   await page.keyboard.press('Enter');
-  await wait(10000); // Esperar 7 segundos
+  await wait(20000); // Esperar 20 segundos
 
   // Esperar a que el mensaje del usuario aparezca en la página
   await page.waitForSelector(`[data-message-author-role="user"]:last-child`);
 
-  // Pausa adicional para dar tiempo a generar el contenedor del mensaje
-  await wait(10000); // Esperar 7 segundos
+ 
 
   // Esperar a que aparezca la nueva respuesta del asistente
   const newResponse = await page.evaluate(async () => {
@@ -79,6 +78,7 @@ async function sendMessageAndGetResponse(token, message) {
     while (!newMessageGenerated && retries < 160) { // Esperar hasta 160 segundos
       const responseMessages = Array.from(document.querySelectorAll('[data-message-author-role="assistant"]'));
       const lastMessage = responseMessages[responseMessages.length - 1];
+      console.log(responseMessages);
 
       if (lastMessage) {
         const currentMessageId = lastMessage.getAttribute('data-message-id');
@@ -92,7 +92,7 @@ async function sendMessageAndGetResponse(token, message) {
         }
       }
 
-      await sleep(2000);
+      await sleep(10000);
       retries++;
     }
 
