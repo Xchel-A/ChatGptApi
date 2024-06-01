@@ -3,20 +3,16 @@ const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const fs = require('fs');
 const https = require('https');
+const cors = require('cors');
 const { exec } = require('child_process');
-const cors = require('cors'); // Importar el módulo cors
 
 puppeteer.use(StealthPlugin());
 
 const app = express();
 app.use(express.json());
 
-// Configurar CORS
-app.use(cors({
-    origin: 'https://orangered-snail-198124.hostingersite.com/', // Cambia esto a tu dominio permitido
-    methods: 'GET,POST,PUT,DELETE',
-    allowedHeaders: 'Content-Type'
-}));
+// Configurar CORS para permitir todos los orígenes
+app.use(cors());
 
 let sessions = {};
 
@@ -79,7 +75,7 @@ async function sendMessageAndGetResponse(token, message) {
     let retries = 0;
     let lastMessageId = '';
 
-    while (!newMessageGenerated && retries < 160) { // Esperar hasta 320 segundos (160 intentos * 2 segundos)
+    while (!newMessageGenerated && retries < 160) { // Esperar hasta 160 segundos
       const responseMessages = Array.from(document.querySelectorAll('[data-message-author-role="assistant"]'));
       const lastMessage = responseMessages[responseMessages.length - 1];
 
