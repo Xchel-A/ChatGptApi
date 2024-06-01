@@ -13,7 +13,7 @@ app.use(express.json());
 
 // Configurar CORS
 app.use(cors({
-    origin: 'https://orangered-snail-198124.hostingersite.com', // Cambia esto a tu dominio permitido
+    origin: 'https://orangered-snail-198124.hostingersite.com/', // Cambia esto a tu dominio permitido
     methods: 'GET,POST,PUT,DELETE',
     allowedHeaders: 'Content-Type'
 }));
