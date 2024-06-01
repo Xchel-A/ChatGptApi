@@ -171,13 +171,14 @@ app.post('/close-all-sessions', (req, res) => {
 setInterval(() => {
   const now = Date.now();
   for (const [token, session] of Object.entries(sessions)) {
-    if (now - session.lastActivity > 10 * 60 * 1000) { // 10 minutos
+    if (now - session.lastActivity > 2.5 * 60 * 1000) { // 2.5 minutos
       session.browser.close();
       delete sessions[token];
       console.log(`Sesión con token ${token} cerrada por inactividad.`);
     }
   }
 }, 60 * 1000); // Verificar cada minuto
+
 
 // Lee los certificados SSL
 const privateKey = fs.readFileSync('/etc/letsencrypt/live/dendenmushi.space/privkey.pem', 'utf8');
