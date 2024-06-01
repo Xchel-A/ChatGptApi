@@ -115,12 +115,12 @@ app.post('/init', async (req, res) => {
   }
 
   if (sessions[token]) {
-    return res.json({ message: 'Ya tienes una sesión activa', token });
+    return res.json({ session: true ,message: 'Ya tienes una sesión activa', token });
   }
 
   try {
     await initPuppeteer(token);
-    res.json({ message: 'Sesión inicializada', token });
+    res.json({session: false, message: 'Sesión inicializada', token });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
