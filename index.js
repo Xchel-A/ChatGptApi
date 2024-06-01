@@ -4,11 +4,19 @@ const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const fs = require('fs');
 const https = require('https');
 const { exec } = require('child_process');
+const cors = require('cors'); // Importar el módulo cors
 
 puppeteer.use(StealthPlugin());
 
 const app = express();
 app.use(express.json());
+
+// Configurar CORS
+app.use(cors({
+    origin: 'https://orangered-snail-198124.hostingersite.com', // Cambia esto a tu dominio permitido
+    methods: 'GET,POST,PUT,DELETE',
+    allowedHeaders: 'Content-Type'
+}));
 
 let sessions = {};
 
@@ -53,13 +61,14 @@ async function sendMessageAndGetResponse(token, message) {
   const { page } = session;
   await page.type('textarea', message);
   await page.keyboard.press('Enter');
-  await wait(7000); // Esperar 5 segundos
+  await wait(7000); // Esperar 7 segundos
+
   // Esperar a que el mensaje del usuario aparezca en la página
   await page.waitForSelector(`[data-message-author-role="user"]:last-child`);
 
   // Pausa adicional para dar tiempo a generar el contenedor del mensaje
+  await wait(7000); // Esperar 7 segundos
 
-  await wait(7000); // Esperar 5 segundos
   // Esperar a que aparezca la nueva respuesta del asistente
   const newResponse = await page.evaluate(async () => {
     const selector = '.markdown.prose.w-full.break-words';
@@ -70,7 +79,7 @@ async function sendMessageAndGetResponse(token, message) {
     let retries = 0;
     let lastMessageId = '';
 
-    while (!newMessageGenerated && retries < 160) { // Esperar hasta 60 segundos (30 intentos * 2 segundos)
+    while (!newMessageGenerated && retries < 160) { // Esperar hasta 320 segundos (160 intentos * 2 segundos)
       const responseMessages = Array.from(document.querySelectorAll('[data-message-author-role="assistant"]'));
       const lastMessage = responseMessages[responseMessages.length - 1];
 
@@ -86,7 +95,7 @@ async function sendMessageAndGetResponse(token, message) {
         }
       }
 
-      await sleep(20000);
+      await sleep(2000);
       retries++;
     }
 
