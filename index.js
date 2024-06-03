@@ -19,7 +19,6 @@ let sessions = {};
 // Función de espera personalizada
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Inicializar Puppeteer y abrir la página de ChatGPT
 async function initPuppeteer(token) {
   exec('Xvfb :99 -screen 0 1280x1024x16 &', (error) => {
     if (error) {
@@ -36,17 +35,38 @@ async function initPuppeteer(token) {
   const page = await browser.newPage();
   await page.goto('https://chat.openai.com/', { waitUntil: 'networkidle2' });
 
-  // Iniciar sesión si es necesario
-  try {
-    await page.waitForSelector('textarea', { timeout: 10000 }); // Espera hasta que la página esté lista
-  } catch (error) {
-    console.error('No se encontró el campo de entrada de texto');
-    await browser.close();
-    throw new Error('Fallo la inicialización: no se encontró el campo de entrada de texto');
+  const checkTextarea = async () => {
+    try {
+      await page.waitForSelector('textarea', { timeout: 10000 });
+      console.log('Textarea encontrado');
+      return true;
+    } catch (error) {
+      console.error('No se encontró el campo de entrada de texto');
+      return false;
+    }
+  };
+
+  const retryOnError = async (attempts) => {
+    let isTextareaFound = await checkTextarea();
+    while (!isTextareaFound && attempts > 0) {
+      console.log(`Reintentando... Intentos restantes: ${attempts}`);
+      await page.reload({ waitUntil: 'networkidle2' });
+      isTextareaFound = await checkTextarea();
+      attempts--;
+    }
+    return isTextareaFound;
+  };
+
+  const maxAttempts = 3;
+  const isTextareaFound = await retryOnError(maxAttempts);
+  if (!isTextareaFound) {
+    console.error('Fallo la inicialización: no se encontró el campo de entrada de texto después de varios intentos');
+    throw new Error('Fallo la inicialización: no se encontró el campo de entrada de texto después de varios intentos');
   }
 
   sessions[token] = { browser, page, lastActivity: Date.now() };
 }
+
 
 // Función para enviar un mensaje y obtener la respuesta de ChatGPT
 async function sendMessageAndGetResponse(token, message) {
